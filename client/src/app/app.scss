@@ -1,0 +1,14 @@
+/* Simple Material Design styles */
+
+.mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+}
+
+mat-card {
+  transition: all 0.3s ease !important;
+}
+
+mat-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+}

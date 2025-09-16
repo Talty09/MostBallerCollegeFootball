@@ -1,0 +1,125 @@
+<!-- Material Design Header -->
+<mat-toolbar color="primary" class="app-header">
+  <mat-icon>sports_football</mat-icon>
+  <span class="toolbar-title">{{ title() }}</span>
+  <span class="toolbar-subtitle">{{ year }} Season</span>
+  <span class="spacer"></span>
+  
+  <!-- Week Selector -->
+  <mat-form-field appearance="outline" class="week-selector">
+    <mat-label>Week</mat-label>
+    <mat-select [value]="selectedWeek" (selectionChange)="onWeekChange($event.value)">
+      <mat-option *ngFor="let week of weeks" [value]="week">
+        Week {{ week }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</mat-toolbar>
+
+<!-- Main Content -->
+<div class="main-content">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="60"></mat-spinner>
+    <p class="loading-text">Loading Week {{ selectedWeek }} games...</p>
+  </div>
+
+  <!-- Error State -->
+  <mat-card *ngIf="error && !loading" class="error-card">
+    <mat-card-content>
+      <div class="error-content">
+        <mat-icon color="warn">error</mat-icon>
+        <p>{{ error }}</p>
+        <button mat-raised-button color="primary" (click)="loadScoreboard(selectedWeek)">
+          <mat-icon>refresh</mat-icon>
+          Try Again
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Games Grid -->
+  <div *ngIf="scoreboard && scoreboard.events && scoreboard.events.length > 0 && !loading" class="games-container">
+    <!-- Week Info Header -->
+    <div class="week-header">
+      <h2>Week {{ selectedWeek }} Games</h2>
+      <mat-chip-set>
+        <mat-chip>{{ scoreboard.events.length }} Games</mat-chip>
+        <mat-chip>{{ year }} Season</mat-chip>
+      </mat-chip-set>
+    </div>
+
+    <!-- Games Grid -->
+    <div class="games-grid">
+      <mat-card *ngFor="let event of scoreboard.events" class="game-card" [class.in-progress]="getGameStatus(event) !== 'Final'">
+        
+        <!-- Game Header -->
+        <mat-card-header class="game-header">
+          <div class="game-info">
+            <div class="game-date">{{ getGameDate(event) | date:'EEEE, MMM d' }}</div>
+            <div class="game-time">{{ getGameDate(event) | date:'h:mm a' }}</div>
+          </div>
+          <div class="game-status">
+            <mat-chip [color]="getGameStatus(event) === 'Final' ? 'accent' : 'primary'">
+              {{ getGameStatus(event) }}
+            </mat-chip>
+          </div>
+        </mat-card-header>
+
+        <!-- Teams and Scores -->
+        <mat-card-content class="game-content">
+          <div class="teams-container">
+            <div *ngFor="let competitor of event.competitions[0]?.competitors" 
+                 class="team" 
+                 [class]="getWinnerClass(competitor)">
+              
+              <div class="team-info">
+                <div class="team-name">{{ competitor.team.displayName }}</div>
+                <div class="team-record" *ngIf="competitor.records">
+                  {{ competitor.records[0]?.summary }}
+                </div>
+              </div>
+              
+              <div class="team-score">{{ competitor.score }}</div>
+            </div>
+          </div>
+
+          <!-- Game Details -->
+          <div class="game-details" *ngIf="event.competitions[0]">
+            
+            <!-- Venue -->
+            <div class="venue-info" *ngIf="event.competitions[0].venue">
+              <mat-icon>place</mat-icon>
+              <span>{{ event.competitions[0].venue.fullName }}, {{ event.competitions[0].venue.address?.city }}</span>
+            </div>
+
+            <!-- Broadcast -->
+            <div class="broadcast-info" *ngIf="event.competitions[0].broadcasts">
+              <mat-icon>tv</mat-icon>
+              <span>{{ event.competitions[0].broadcasts[0]?.names?.join(', ') }}</span>
+            </div>
+
+            <!-- Leaders -->
+            <div class="leaders" *ngIf="event.competitions[0].leaders">
+              <div *ngFor="let leader of event.competitions[0].leaders | slice:0:2" class="leader-stat">
+                <span class="stat-name">{{ leader.displayName }}:</span>
+                <span class="stat-value">{{ leader.leaders?.[0]?.athlete?.displayName }} ({{ leader.leaders?.[0]?.displayValue }})</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- No Games State -->
+  <mat-card *ngIf="scoreboard && scoreboard.events && scoreboard.events.length === 0 && !loading" class="no-games-card">
+    <mat-card-content>
+      <div class="no-games-content">
+        <mat-icon>sports_football</mat-icon>
+        <h3>No games found</h3>
+        <p>No games scheduled for Week {{ selectedWeek }} of {{ year }}.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
