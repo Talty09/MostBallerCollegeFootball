@@ -175,9 +175,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 📞 Support
 
 If you have questions or need help:
-1. Check the [Issues](https://github.com/yourusername/college-football-scoreboard/issues) page
-2. Create a new issue with detailed information
-3. Include browser console errors and steps to reproduce
+1. I don't care
 
 ---
 
